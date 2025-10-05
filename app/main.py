@@ -1,7 +1,14 @@
 from fastapi import FastAPI
 from routes.user_routes import router as user_router
-from routes.patient_routes import router as patient_router
+from routes.appointment_routes import router as appointment_router
 from fastapi.middleware.cors import CORSMiddleware
+from routes.rol_routes import router as rol_router
+from routes.type_document_routes import router as type_doc_router
+from routes.attribute_routes import router as attribute_router
+
+
+
+
 
 app = FastAPI()
 
@@ -20,8 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(patient_router)
+app.include_router(appointment_router)
 app.include_router(user_router) 
+app.include_router(rol_router)
+app.include_router(type_doc_router)
+app.include_router(attribute_router)
+
 
 if __name__ == "__main__":
     import uvicorn
