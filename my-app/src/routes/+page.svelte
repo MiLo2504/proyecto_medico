@@ -1,7 +1,10 @@
+<script>
+  import Navbar from "$lib/components/Navbar.svelte";
+</script>
+
+<Navbar />
 <section class="container text-center py-5">
-  <h1 class="fw-bold text-primary mb-4">
-    Bienvenido a MediVision
-  </h1>
+  <h1 class="fw-bold text-primary mb-4">Bienvenido a MediVision</h1>
   <p class="lead mb-5">
     Plataforma médica inteligente para el análisis de imágenes con IA.
   </p>
@@ -11,8 +14,8 @@
 <section id="info" class="container py-5">
   <h2 class="text-primary mb-3">Información</h2>
   <p>
-    MediVision permite a doctores y pacientes subir y analizar imágenes
-    médicas usando algoritmos avanzados de inteligencia artificial.
+    MediVision permite a doctores y pacientes subir y analizar imágenes médicas
+    usando algoritmos avanzados de inteligencia artificial.
   </p>
 </section>
 

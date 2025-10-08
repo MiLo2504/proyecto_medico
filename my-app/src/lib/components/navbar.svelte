@@ -1,8 +1,4 @@
-<script>
-  import { onMount } from "svelte";
-</script>
-
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg -smnavbar-light bg-white shadow">
   <div class="container">
     <a class="navbar-brand text-primary fw-bold" href="/">MediVision</a>
 
@@ -24,7 +20,7 @@
           <a class="nav-link active" href="/">Inicio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#info">Información</a>
+          <a class="nav-link" href="/">Información</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#contacto">Contacto</a>
