@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
   import Navbar from "$lib/components/Navbar.svelte";
 </script>
 
 <Navbar />
+
 <section class="container text-center py-5">
   <h1 class="fw-bold text-primary mb-4">Bienvenido a MediVision</h1>
   <p class="lead mb-5">

@@ -1,0 +1,9 @@
+export { default as Footer } from './components/Footer.svelte';
+export { default as Navbar } from './components/Navbar.svelte';
+export { default as NavbarAdmin } from './components/NavbarAdmin.svelte';
+export { default as NavBarPaciente } from './components/PatientNavbar.svelte';
+export { default as ResultsTable } from './components/ResultsTable.svelte';
+export { default as ResultDetail } from './components/ResultDetail.svelte';
+export { default as UserForm } from './components/UserForm.svelte';
+export { default as UserTable } from './components/UserTable.svelte';
+export { default as UserEditForm } from './components/UserEditForm.svelte';

@@ -1,7 +1,6 @@
-<script>
-  import "bootstrap/dist/css/bootstrap.min.css";
-  import { onMount } from "svelte";
-  import Navbar from "$lib/components/Navbar.svelte";
+<script lang="ts">
+  import { goto } from "$app/navigation";
+  import { register } from "$lib/services/authService.js";
 
   let formData = {
     user_name: "",
@@ -29,20 +28,29 @@
     { id: 3, name: "Pasaporte" },
   ];
 
-  function registerUser() {
-    console.log("Datos del registro:", formData);
+  let errorMessage = "";
 
-    // Aquí luego conectarás con FastAPI (POST)
-    // Ejemplo:
-    // await fetch("http://127.0.0.1:8000/register", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(formData)
-    // });
-    alert("Registro enviado (simulado). Revisa la consola.");
+  async function handleSubmit() {
+    if (
+      !formData.email ||
+      !formData.password ||
+      !formData.user_name ||
+      !formData.full_name ||
+      !formData.last_name
+    ) {
+      errorMessage = "Por favor, completa todos los campos obligatorios";
+      return;
+    }
+
+    try {
+      await register(formData);
+      alert("Registro exitoso ✅");
+      goto("/login"); // Redirige a login tras registrar
+    } catch (err) {
+      errorMessage = err.message || "Error al registrar el usuario";
+    }
   }
 </script>
-
 
 <div class="container mt-5 mb-5">
   <div class="row justify-content-center">
@@ -53,7 +61,13 @@
             Registro de Usuario
           </h3>
 
-          <form on:submit|preventDefault={registerUser}>
+          {#if errorMessage}
+            <div class="alert alert-danger text-center py-2">
+              {errorMessage}
+            </div>
+          {/if}
+
+          <form on:submit|preventDefault={handleSubmit}>
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Nombre de usuario</label>
@@ -162,12 +176,19 @@
               />
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-primary w-100 py-2 fw-semibold"
+            <div class="mb-3">
+              <label class="form-label">Rol</label>
+              <select bind:value={formData.id_rol} class="form-select" required>
+                <option value="">Seleccione...</option>
+                {#each roles as role}
+                  <option value={role.id}>{role.name}</option>
+                {/each}
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold"
+              >Registrarse</button
             >
-              Registrarse
-            </button>
 
             <div class="text-center mt-3">
               <small
