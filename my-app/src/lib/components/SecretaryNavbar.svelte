@@ -46,10 +46,10 @@
           <a class="nav-link active" href="/secretary">Agendar Citas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Solicitudes</a>
+          <a class="nav-link" href="/secretary/requests">Solicitudes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Reportes</a>
+          <a class="nav-link" href="/secretary/reports">Reportes</a>
         </li>
       </ul>
       <div class="d-lg-none mb-3">

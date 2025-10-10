@@ -2,7 +2,7 @@
   import Navbar from "$lib/components/Navbar.svelte";
 </script>
 
-<Navbar />
+
 <body class="bg-light">
   <div class="d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg p-4 border-0 rounded-4" style="width: 25rem;">

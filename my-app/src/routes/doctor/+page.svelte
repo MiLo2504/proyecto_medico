@@ -6,14 +6,23 @@
   import { fetchPatients } from "$lib/services/doctorService.js";
 
   let filter = "";
+  let loading = false;
 
   onMount(async () => {
-    $patients = await fetchPatients();
+    loading = true;
+    try {
+      $patients = await fetchPatients(); // Usará datos simulados
+    } catch (err) {
+      console.error("Error al cargar pacientes:", err);
+      $patients = []; // Valor por defecto si falla
+    } finally {
+      loading = false;
+    }
   });
 
   function toggleStatus(patient) {
     patient.estado = patient.estado === "Activo" ? "Inactivo" : "Activo";
-    $patients = $patients; // Fuerza actualización
+    $patients = [...$patients]; // Forzar reactividad
   }
 
   function viewAnalysis(id) {
@@ -23,15 +32,18 @@
 
 <div class="p-4">
   <h4 class="fw-bold">Pacientes Asignados</h4>
-
   <div class="card shadow-sm">
     <div class="card-body">
-      <PatientTable
-        {filter}
-        patients={$patients}
-        onToggleStatus={toggleStatus}
-        onViewAnalysis={viewAnalysis}
-      />
+      {#if loading}
+        <p>Cargando pacientes...</p>
+      {:else}
+        <PatientTable
+          {filter}
+          patients={$patients}
+          onToggleStatus={toggleStatus}
+          onViewAnalysis={viewAnalysis}
+        />
+      {/if}
     </div>
   </div>
 </div>

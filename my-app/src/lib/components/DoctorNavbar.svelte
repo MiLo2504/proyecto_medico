@@ -44,13 +44,13 @@
           <a class="nav-link" href="/doctor">Pacientes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Analisis</a>
+          <a class="nav-link" href="/doctor/analysis">Analisis</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Citas</a>
+          <a class="nav-link" href="/doctor/appointments">Citas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Configuración</a>
+          <a class="nav-link" href="/doctor/settings">Configuración</a>
         </li>
       </ul>
       <div class="d-lg-none mb-3">
