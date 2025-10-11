@@ -1,52 +1,31 @@
+// src/lib/services/patientService.js
 export async function fetchPatient(id) {
-  try {
-    const res = await fetch(`/api/patient/${id}`);
-    if (!res.ok) throw new Error("Error al obtener datos del paciente");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  // Simulación de datos del paciente
+  return {
+    id: parseInt(id),
+    user_name: `paciente${id}`,
+    full_name: `Paciente ${id} Ejemplo`,
+    document: `DOC-${id}123456`,
+    phone: `300${id}123456`,
+  };
 }
 
 export async function fetchAnalyses(id) {
-  try {
-    const res = await fetch(`/api/patient/${id}/analysis`);
-    if (!res.ok) throw new Error("Error al obtener los análisis");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
+  return [
+    { id: 1, url_image: "https://via.placeholder.com/150", date: "2025-10-09", result_ia: "Normal" },
+    { id: 2, url_image: "https://via.placeholder.com/150", date: "2025-10-08", result_ia: "Anomalía detectada" },
+  ];
+}
+
+export async function fetchAnalysisById(id) {
+  const analyses = await fetchAnalyses(1);
+  return analyses.find((a) => a.id === parseInt(id)) || null;
 }
 
 export async function uploadAnalysis(id, file) {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch(`/api/patient/${id}/analysis`, {
-      method: "POST",
-      body: formData,
-    });
-    if (!res.ok) throw new Error("Error al enviar imagen");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  return { success: true };
 }
 
 export async function updatePatient(id, data) {
-  try {
-    const res = await fetch(`/api/patient/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error("Error al guardar cambios");
-    return await res.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  return { success: true };
 }

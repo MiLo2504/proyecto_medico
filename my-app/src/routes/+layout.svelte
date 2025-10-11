@@ -3,8 +3,6 @@
   import Navbar from "$lib/components/Navbar.svelte";
 </script>
 
-<Navbar />
-
 <main class="flex-grow-1">
   <slot />
 </main>
