@@ -12,10 +12,11 @@
   onMount(async () => {
     $loading = true;
     try {
-      $patient = await fetchPatient(1); // Usa un ID fijo para simulación
+      $patient = await fetchPatient(1); // Ajusta ID dinámicamente si necesario
       $analyses = await fetchAnalyses(1);
     } catch (err) {
       console.error("Error al cargar datos:", err);
+      alert("No se pudieron cargar los datos del paciente");
       $patient = null;
       $analyses = [];
     } finally {
@@ -26,18 +27,27 @@
   async function handleAnalyze(file) {
     $loading = true;
     try {
-      $analyses = [...$analyses, { id: Date.now(), url_image: URL.createObjectURL(file), date: new Date().toISOString(), result_ia: "Procesando..." }];
+      const result = await uploadAnalysis(1, file); // Ajusta ID dinámicamente
+      $analyses = await fetchAnalyses(1);
       alert("Imagen subida correctamente");
     } catch (err) {
-      alert("Error al subir imagen");
+      alert("Error al subir imagen: " + err.message);
     } finally {
       $loading = false;
     }
   }
 
   async function handleSave(data) {
-    $patient = { ...$patient, ...data };
-    alert("Información guardada correctamente ✅");
+    $loading = true;
+    try {
+      await updatePatient(1, data); // Ajusta ID dinámicamente
+      $patient = { ...$patient, ...data };
+      alert("Información guardada correctamente ✅");
+    } catch (err) {
+      alert("Error al guardar: " + err.message);
+    } finally {
+      $loading = false;
+    }
   }
 
   function viewDetail(id) {
@@ -49,7 +59,7 @@
   <div class="row g-4">
     <div class="col-lg-8">
       <AnalysisUpload {file} onAnalyze={handleAnalyze} />
-      <AnalysisList analyses={$analyses} loading={$loading} onViewDetail={viewDetail} />
+      <AnalysisList analyses={$analyses} {loading} onViewDetail={viewDetail} />
     </div>
     <div class="col-lg-4">
       {#if $patient}

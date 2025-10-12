@@ -11,10 +11,11 @@
   onMount(async () => {
     loading = true;
     try {
-      $patients = await fetchPatients(); // Usará datos simulados
+      $patients = await fetchPatients();
     } catch (err) {
       console.error("Error al cargar pacientes:", err);
-      $patients = []; // Valor por defecto si falla
+      alert("No se pudieron cargar los pacientes");
+      $patients = [];
     } finally {
       loading = false;
     }
@@ -22,7 +23,7 @@
 
   function toggleStatus(patient) {
     patient.estado = patient.estado === "Activo" ? "Inactivo" : "Activo";
-    $patients = [...$patients]; // Forzar reactividad
+    $patients = [...$patients];
   }
 
   function viewAnalysis(id) {

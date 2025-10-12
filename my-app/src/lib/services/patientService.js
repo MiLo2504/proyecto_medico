@@ -1,31 +1,63 @@
-// src/lib/services/patientService.js
 export async function fetchPatient(id) {
-  // Simulación de datos del paciente
-  return {
-    id: parseInt(id),
-    user_name: `paciente${id}`,
-    full_name: `Paciente ${id} Ejemplo`,
-    document: `DOC-${id}123456`,
-    phone: `300${id}123456`,
-  };
+  try {
+    const res = await fetch(`/api/patient/${id}`);
+    if (!res.ok) throw new Error("Error al obtener datos del paciente");
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching patient:", err);
+    return null; // Valor por defecto en caso de error
+  }
 }
 
 export async function fetchAnalyses(id) {
-  return [
-    { id: 1, url_image: "https://via.placeholder.com/150", date: "2025-10-09", result_ia: "Normal" },
-    { id: 2, url_image: "https://via.placeholder.com/150", date: "2025-10-08", result_ia: "Anomalía detectada" },
-  ];
+  try {
+    const res = await fetch(`/api/patient/${id}/analysis`);
+    if (!res.ok) throw new Error("Error al obtener análisis");
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching analyses:", err);
+    return [];
+  }
 }
 
 export async function fetchAnalysisById(id) {
-  const analyses = await fetchAnalyses(1);
-  return analyses.find((a) => a.id === parseInt(id)) || null;
+  try {
+    const res = await fetch(`/api/analysis/${id}`);
+    if (!res.ok) throw new Error("Error al obtener análisis");
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching analysis:", err);
+    return null;
+  }
 }
 
 export async function uploadAnalysis(id, file) {
-  return { success: true };
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`/api/patient/${id}/analysis`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Error al subir análisis");
+    return await res.json();
+  } catch (err) {
+    console.error("Error uploading analysis:", err);
+    throw err;
+  }
 }
 
 export async function updatePatient(id, data) {
-  return { success: true };
+  try {
+    const res = await fetch(`/api/patient/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Error al actualizar paciente");
+    return await res.json();
+  } catch (err) {
+    console.error("Error updating patient:", err);
+    throw err;
+  }
 }

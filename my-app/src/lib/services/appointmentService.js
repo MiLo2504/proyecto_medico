@@ -1,35 +1,40 @@
 export async function fetchRequests() {
-  // Reemplaza con API real (ej. GET /api/appointments/requests)
-  return [
-    {
-      doctor: "Dr. Alan García",
-      patient: "Juan Pérez",
-      reason: "Revisión de resultados de laboratorio.",
-      time: "Hace 15 min",
-    },
-    {
-      doctor: "Dra. Sofia Vergara",
-      patient: "Maria Rodriguez",
-      reason: "Consulta de seguimiento por migraña.",
-      time: "Hace 1 hora",
-    },
-    {
-      doctor: "Dr. Luis Martinez",
-      patient: "Carlos Gomez",
-      reason: "Chequeo anual.",
-      time: "Hace 3 horas",
-    },
-  ];
+  try {
+    const res = await fetch('/api/appointments/requests');
+    if (!res.ok) throw new Error("Error al obtener solicitudes");
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching requests:", err);
+    return [];
+  }
 }
 
 export async function createAppointment(data) {
-  // Reemplaza con API real (ej. POST /api/appointments)
-  console.log("Cita creada:", data);
-  return { success: true }; // Simulación
+  try {
+    const res = await fetch('/api/appointments', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Error al crear cita");
+    return await res.json();
+  } catch (err) {
+    console.error("Error creating appointment:", err);
+    throw err;
+  }
 }
 
 export async function processRequest(request) {
-  // Reemplaza con API real (ej. POST /api/appointments/process)
-  console.log("Solicitud procesada:", request);
-  return { success: true }; // Simulación
+  try {
+    const res = await fetch(`/api/appointments/${request.id}/process`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+    if (!res.ok) throw new Error("Error al procesar solicitud");
+    return await res.json();
+  } catch (err) {
+    console.error("Error processing request:", err);
+    throw err;
+  }
 }
