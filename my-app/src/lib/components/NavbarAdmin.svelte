@@ -47,11 +47,9 @@
           <a class="nav-link" href="#usuarios">Usuarios</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#doctores">Doctores</a>
+          <a class="nav-link" href="admin/roles">Crear Rol</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#pacientes">Pacientes</a>
-        </li>
+
         <li class="nav-item">
           <a class="nav-link" href="#resultados">Resultados</a>
         </li>

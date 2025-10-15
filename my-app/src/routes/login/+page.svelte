@@ -1,88 +1,41 @@
-<script>
+<script lang="ts">
   import Navbar from "$lib/components/Navbar.svelte";
-  import { goto } from "$app/navigation";
-
-  // Estado reactivo
-  let email = "";
-  let password = "";
-  let errorMessage = "";
-
-  // Función para mostrar errores
-  function showError(message) {
-    errorMessage = message;
-  }
-
-  // Función de inicio de sesión
-  async function handleLogin(event) {
-    event.preventDefault(); // Prevenir el envío del formulario
-
-    if (!email.trim() || !password.trim()) {
-      showError("Por favor, completa todos los campos");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        showError(data.detail || "Credenciales incorrectas");
-        return;
-      }
-
-      // Guardar token (puedes usar un store o cookies en lugar de localStorage)
-      localStorage.setItem("token", data.access_token);
-
-      // Redirigir usando SvelteKit
-      alert("Inicio de sesión exitoso ✅");
-      goto("/dashboard"); // Ajusta la ruta según tu aplicación
-    } catch (err) {
-      showError("Error al conectar con el servidor");
-      console.error(err);
-    }
-  }
 </script>
 
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
   <div class="card shadow-lg p-4 border-0 rounded-4" style="width: 25rem;">
     <h3 class="text-center mb-4 fw-bold text-primary">Iniciar Sesión</h3>
 
-    <!-- Mensaje de error -->
-    {#if errorMessage}
-      <div class="alert alert-danger text-center py-2">{errorMessage}</div>
-    {/if}
+      <!-- Mensaje de error -->
+      <div
+        id="errorBox"
+        class="alert alert-danger d-none text-center py-2"
+      ></div>
 
-    <form on:submit={handleLogin}>
-      <!-- Correo -->
-      <div class="mb-3">
-        <label for="email" class="form-label">Correo electrónico</label>
-        <input
-          id="email"
-          type="email"
-          class="form-control"
-          placeholder="usuario@ejemplo.com"
-          bind:value={email}
-          required
-        />
-      </div>
+      <form id="loginForm">
+        <!-- Correo -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo electrónico</label>
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            placeholder="usuario@ejemplo.com"
+            required
+          />
+        </div>
 
-      <!-- Contraseña -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          class="form-control"
-          placeholder="****"
-          bind:value={password}
-          required
-        />
-      </div>
+        <!-- Contraseña -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            placeholder="********"
+            required
+          />
+        </div>
 
       <!-- Botón -->
       <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
@@ -90,11 +43,64 @@
       </button>
     </form>
 
-    <!-- Enlace a registro -->
-    <div class="text-center mt-3">
-      <small>
-        ¿No tienes cuenta? <a href="/register" class="text-primary">Regístrate</a>
-      </small>
+      <!-- Enlace a registro -->
+      <div class="text-center mt-3">
+        <small
+          >¿No tienes cuenta? <a href="/register" class="text-primary"
+            >Regístrate</a
+          >
+        </small>
+      </div>
     </div>
   </div>
-</div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const errorBox = document.getElementById("errorBox");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showError("Por favor, completa todos los campos");
+        return;
+      }
+
+      try {
+        // Aquí conectas con tu API FastAPI
+        const response = await fetch("http://127.0.0.1:8000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError(data.detail || "Credenciales incorrectas");
+          return;
+        }
+
+        // Guardar token o datos de usuario si la API responde correctamente
+        localStorage.setItem("token", data.access_token);
+        alert("Inicio de sesión exitoso ✅");
+        window.location.href = "dashboard"; // Redirige al panel principal
+      } catch (err) {
+        showError("Error al conectar con el servidor");
+        console.error(err);
+      }
+    });
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.classList.remove("d-none");
+    }
+  </script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
