@@ -184,7 +184,7 @@
           <h4 class="card-title mb-3">Crear Nuevo Usuario</h4>
           <UserForm
             bind:newUser
-            roles={$roles}  🎯 Pasar el store $roles 
+            roles={$roles} 
             documentTypes={documentTypes}
             onSubmit={handleCreateUser}
           />

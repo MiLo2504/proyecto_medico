@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { roles, loading } from "$lib/stores/roles.js";
-  import { onMount } from "svelte";
-
   export let newUser = {
     user_name: "",
     password: "",
@@ -16,20 +13,20 @@
     id_rol: "",
   };
 
+  // Roles y tipos de documento vendrían del backend idealmente
+  export let roles = [
+    { id: 1, name: "Admin" },
+    { id: 2, name: "Doctor" },
+    { id: 3, name: "Paciente" },
+    { id: 4, name: "Administrador (Secretaria)" },
+  ];
+
   export let documentTypes = [
     { id: 1, name: "Cédula de Ciudadanía" },
     { id: 2, name: "Tarjeta de Identidad" },
   ];
 
   export let onSubmit;
-
-  // Cargar roles dinámicamente
-  onMount(async () => {
-    // Los roles ya se cargan desde +page.svelte, pero puedes forzar la carga aquí
-    if ($roles.length === 0) {
-      await import("$lib/stores/roles.js").then((store) => store.loadRoles());
-    }
-  });
 
   function handleSubmit() {
     if (
@@ -42,6 +39,8 @@
       alert("Por favor completa todos los campos obligatorios");
       return;
     }
+
+    // Envía el objeto completo con nombres compatibles con la BD
     onSubmit(newUser);
   }
 </script>
@@ -116,13 +115,10 @@
         bind:value={newUser.password}
       />
     </div>
-    
-    <!-- 🎯 DESPLEGABLE DINÁMICO DE ROLES -->
     <div class="col-md-12">
-      <label class="form-label">Rol</label>
-      <select class="form-select" bind:value={newUser.id_rol} required>
+      <select class="form-select" bind:value={newUser.id_rol}>
         <option value="">Selecciona un rol</option>
-        {#each $roles as role (role.id)}
+        {#each roles as role}
           <option value={role.id}>{role.name}</option>
         {/each}
       </select>
