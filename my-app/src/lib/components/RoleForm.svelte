@@ -1,11 +1,16 @@
 <script>
-  import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
-  import { roles, modules, loading } from "$lib/stores/roles.js";
-  import { createRole, fetchModules } from "$lib/services/roleService.js";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { modules, loading } from "$lib/stores/roles.js";
+  import { fetchModules, createRole, updateRole, deleteRole } from "$lib/services/roleService.js";
+
+  const dispatch = createEventDispatcher();
+
+  export let editingRole = null;
+  export let isEditing = false;
 
   let roleName = "";
-  let selectedPermissions = {};
+  let roleDescription = "";
+  let selectedModules = {};
 
   onMount(async () => {
     $loading = true;
@@ -13,15 +18,16 @@
       const modulos = await fetchModules();
       $modules = modulos;
       modulos.forEach((modulo) => {
-        if (!selectedPermissions[modulo.id]) {
-          selectedPermissions[modulo.id] = {
-            can_create: false,
-            can_read: false,
-            can_update: false,
-            can_delete: false,
-          };
-        }
+        selectedModules[modulo.id] = false;
       });
+
+      if (isEditing && editingRole) {
+        roleName = editingRole.name || "";
+        roleDescription = editingRole.description || "";
+        (editingRole.modules || []).forEach((modId) => {
+          selectedModules[modId] = true;
+        });
+      }
     } catch (err) {
       console.error("Error al cargar módulos:", err);
     } finally {
@@ -29,61 +35,68 @@
     }
   });
 
-  $: if ($modules.length > 0) {
-    $modules.forEach((modulo) => {
-      if (!selectedPermissions[modulo.id]) {
-        selectedPermissions[modulo.id] = {
-          can_create: false,
-          can_read: false,
-          can_update: false,
-          can_delete: false,
-        };
-      }
-    });
-  }
-
   async function handleSubmit() {
     if (!roleName.trim()) {
-      alert("Por favor, ingresa el nombre del rol");
+      alert("Por favor ingresa un nombre de rol");
       return;
     }
+
+    const permisosSeleccionados = Object.entries(selectedModules)
+      .filter(([_, value]) => value)
+      .map(([id]) => parseInt(id));
+
+    const roleData = {
+      role_name: roleName,
+      description: roleDescription,
+      permissions: permisosSeleccionados,
+    };
+
     $loading = true;
     try {
-      const roleData = {
-        role_name: roleName,
-        permissions: selectedPermissions,
-      };
-      const newRole = await createRole(roleData);
-      $roles = [...$roles, newRole];
-      alert("Rol creado correctamente ✅");
-      roleName = "";
-      selectedPermissions = {};
-      $modules.forEach((modulo) => {
-        selectedPermissions[modulo.id] = {
-          can_create: false,
-          can_read: false,
-          can_update: false,
-          can_delete: false,
-        };
-      });
+      if (isEditing) {
+        await updateRole(editingRole.id, roleData);
+        alert("Rol actualizado exitosamente");
+      } else {
+        await createRole(roleData);
+        alert("Rol creado exitosamente");
+      }
+      dispatch("saved");
     } catch (err) {
-      alert("Error al crear el rol: " + err.message);
+      console.error("Error al guardar rol:", err);
+      alert("Error al guardar el rol: " + err.message);
     } finally {
       $loading = false;
     }
   }
 
-  function cancel() {
-    goto("/admin/roles");
+  async function handleDelete() {
+    if (isEditing && editingRole && confirm("¿Seguro que deseas eliminar este rol?")) {
+      $loading = true;
+      try {
+        await deleteRole(editingRole.id);
+        alert("Rol eliminado exitosamente");
+        dispatch("saved");
+      } catch (err) {
+        console.error("Error al eliminar rol:", err);
+        alert("Error al eliminar el rol");
+      } finally {
+        $loading = false;
+      }
+    }
+  }
+
+  function handleCancel() {
+    dispatch("cancel");
   }
 </script>
 
 <div class="card shadow-sm">
   <div class="card-body">
-    <h4 class="fw-bold mb-3">Crear Nuevo Rol</h4>
+    <h4 class="fw-bold mb-3">{isEditing ? "Actualizar Rol" : "Nuevo Rol"}</h4>
+
     <form on:submit|preventDefault={handleSubmit}>
       <div class="mb-3">
-        <label for="role-name" class="form-label">Nombre del Rol</label>
+        <label for="role-name" class="form-label">Nombre del Perfil</label>
         <input
           id="role-name"
           type="text"
@@ -93,82 +106,46 @@
         />
       </div>
 
+      <div class="mb-3">
+        <label for="role-desc" class="form-label">Descripción</label>
+        <textarea
+          id="role-desc"
+          class="form-control"
+          rows="2"
+          bind:value={roleDescription}
+        ></textarea>
+      </div>
+
+      <h5 class="mb-3">Módulos</h5>
       {#if $modules.length > 0}
-        <h5 class="mb-3">Permisos por Módulo</h5>
-        {#each $modules as modulo}
-          <div class="border p-3 mb-3 rounded">
-            <h6 class="fw-bold text-primary mb-2">{modulo.module_name}</h6>
-            <div class="row">
-              <div class="col-md-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="create-{modulo.id}"
-                    bind:checked={selectedPermissions[modulo.id].can_create}
-                  />
-                  <label class="form-check-label" for="create-{modulo.id}"
-                    >Crear</label
-                  >
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="read-{modulo.id}"
-                    bind:checked={selectedPermissions[modulo.id].can_read}
-                  />
-                  <label class="form-check-label" for="read-{modulo.id}"
-                    >Leer</label
-                  >
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="update-{modulo.id}"
-                    bind:checked={selectedPermissions[modulo.id].can_update}
-                  />
-                  <label class="form-check-label" for="update-{modulo.id}"
-                    >Actualizar</label
-                  >
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="delete-{modulo.id}"
-                    bind:checked={selectedPermissions[modulo.id].can_delete}
-                  />
-                  <label class="form-check-label" for="delete-{modulo.id}"
-                    >Eliminar</label
-                  >
-                </div>
-              </div>
-            </div>
+        {#each $modules as modulo (modulo.id)}
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="mod-{modulo.id}"
+              bind:checked={selectedModules[modulo.id]}
+            />
+            <label class="form-check-label" for="mod-{modulo.id}">
+              {modulo.name}
+            </label>
           </div>
         {/each}
       {:else}
         <p class="text-muted">Cargando módulos...</p>
       {/if}
 
-      <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="button" class="btn btn-secondary" on:click={cancel}
-          >Cancelar</button
-        >
-        <button type="submit" class="btn btn-primary" disabled={$loading}>
-          {#if $loading}
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            Creando...
-          {:else}
-            Crear Rol
-          {/if}
+      <div class="d-flex justify-content-start gap-2 mt-4">
+        <button type="button" class="btn btn-primary" on:click={handleSubmit}>
+          {isEditing ? "Actualizar" : "Registrar"}
+        </button>
+        {#if isEditing}
+          <button type="button" class="btn btn-danger" on:click={handleDelete}>
+            Eliminar
+          </button>
+        {/if}
+        <button type="button" class="btn btn-secondary" on:click={handleCancel}>
+          Cancelar
         </button>
       </div>
     </form>

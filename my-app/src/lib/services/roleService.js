@@ -1,81 +1,79 @@
 // src/lib/services/roleService.js
 export async function fetchRoles() {
-  // Datos simulados de roles
-  return [
-    {
-      id: 1,
-      role_name: "Administrador",
-      permissions: {
-        1: { can_create: true, can_read: true, can_update: true, can_delete: true }, // Usuarios
-        2: { can_create: true, can_read: true, can_update: true, can_delete: true }, // Pacientes
-        3: { can_create: true, can_read: true, can_update: true, can_delete: true }, // Doctores
-        4: { can_create: true, can_read: true, can_update: true, can_delete: true }, // Citas
-      },
-      estado: 1
-    },
-    {
-      id: 2,
-      role_name: "Doctor",
-      permissions: {
-        1: { can_create: false, can_read: true, can_update: false, can_delete: false },
-        2: { can_create: true, can_read: true, can_update: true, can_delete: false },
-        3: { can_create: false, can_read: true, can_update: false, can_delete: false },
-        4: { can_create: false, can_read: true, can_update: false, can_delete: false },
-      },
-      estado: 1
-    },
-    {
-      id: 3,
-      role_name: "Paciente",
-      permissions: {
-        1: { can_create: false, can_read: false, can_update: false, can_delete: false },
-        2: { can_create: false, can_read: true, can_update: false, can_delete: false },
-        3: { can_create: false, can_read: false, can_update: false, can_delete: false },
-        4: { can_create: true, can_read: true, can_update: false, can_delete: false },
-      },
-      estado: 1
-    },
-    {
-      id: 4,
-      role_name: "Administrador (Secretaria)",
-      permissions: {
-        1: { can_create: true, can_read: true, can_update: true, can_delete: false },
-        2: { can_create: true, can_read: true, can_update: false, can_delete: false },
-        3: { can_create: false, can_read: true, can_update: false, can_delete: false },
-        4: { can_create: true, can_read: true, can_update: true, can_delete: false },
-      },
-      estado: 1
-    }
-  ];
+  try {
+    const response = await fetch('http://127.0.0.1:8000/roles');
+    if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
+    const roles = await response.json();
+    console.log('Roles cargados:', roles);
+    return roles;
+  } catch (error) {
+    console.error('Error fetching roles:', error);
+    throw error;
+  }
 }
 
 export async function fetchModules() {
-  // Datos simulados de módulos
-  return [
-    { id: 1, module_name: "Usuarios" },
-    { id: 2, module_name: "Pacientes" },
-    { id: 3, module_name: "Doctores" },
-    { id: 4, module_name: "Citas" }
-  ];
+  try {
+    const res = await fetch("http://127.0.0.1:8000/roles/modules", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}: ${await res.text()}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching modules:", err);
+    throw err;
+  }
 }
 
 export async function createRole(roleData) {
-  // Simulación de creación de rol
-  const newRole = {
-    id: Date.now(),
-    role_name: roleData.role_name,
-    permissions: roleData.permissions,
-    estado: 1
-  };
-  return newRole; // Simula éxito y devuelve el nuevo rol
+  try {
+    const res = await fetch("http://127.0.0.1:8000/roles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: roleData.role_name,
+        description: roleData.description,
+        permisos: roleData.permissions,
+      }),
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}: ${await res.text()}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error creating role:", err);
+    throw err;
+  }
 }
 
 export async function updateRole(roleId, roleData) {
-  // Simulación de actualización
-  return { message: "Rol actualizado exitosamente" };
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/roles/${roleId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: roleData.role_name,
+        description: roleData.description,
+        permisos: roleData.permissions,
+      }),
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}: ${await res.text()}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error updating role:", err);
+    throw err;
+  }
 }
 
 export async function deleteRole(roleId) {
-  // Simulación de eliminación lógica (cambia estado a 0)
-  return { message: "Rol eliminado exitosamente" };
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/roles/${roleId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}: ${await res.text()}`);
+    return true;
+  } catch (err) {
+    console.error("Error deleting role:", err);
+    throw err;
+  }
 }
