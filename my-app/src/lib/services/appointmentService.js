@@ -1,31 +1,19 @@
-export async function fetchRequests() {
-  // Reemplaza con API real (ej. GET /api/appointments/requests)
-  return [
-    {
-      doctor: "Dr. Alan García",
-      patient: "Juan Pérez",
-      reason: "Revisión de resultados de laboratorio.",
-      time: "Hace 15 min",
-    },
-    {
-      doctor: "Dra. Sofia Vergara",
-      patient: "Maria Rodriguez",
-      reason: "Consulta de seguimiento por migraña.",
-      time: "Hace 1 hora",
-    },
-    {
-      doctor: "Dr. Luis Martinez",
-      patient: "Carlos Gomez",
-      reason: "Chequeo anual.",
-      time: "Hace 3 horas",
-    },
-  ];
+// src/lib/services/appointmentService.js
+
+export async function fetchAppointments() {
+  const res = await fetch('/api/appointments');
+  if (!res.ok) throw new Error('Error al cargar citas');
+  return await res.json();
 }
 
 export async function createAppointment(data) {
-  // Reemplaza con API real (ej. POST /api/appointments)
-  console.log("Cita creada:", data);
-  return { success: true }; // Simulación
+  const res = await fetch('/api/appointments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...data, state: 1 })
+  });
+  if (!res.ok) throw new Error('Error al crear cita');
+  return await res.json();
 }
 
 export async function processRequest(request) {
@@ -33,3 +21,5 @@ export async function processRequest(request) {
   console.log("Solicitud procesada:", request);
   return { success: true }; // Simulación
 }
+
+

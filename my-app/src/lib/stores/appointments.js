@@ -1,3 +1,5 @@
+// src/lib/stores/appointments.js
 import { writable } from 'svelte/store';
-export const requests = writable([]);
+
+export const appointments = writable([]);
 export const loading = writable(false);

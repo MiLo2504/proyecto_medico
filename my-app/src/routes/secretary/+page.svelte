@@ -1,35 +1,111 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
   import AppointmentForm from "$lib/components/AppointmentForm.svelte";
-  import AppointmentRequestList from "$lib/components/AppointmentRequestList.svelte";
-  import { requests, loading } from "$lib/stores/appointments.js";
-  import {
-    fetchRequests,
-    processRequest,
-  } from "$lib/services/appointmentService.js";
+  import AppointmentsTable from "$lib/components/AppointmentsTable.svelte";
+  import { appointments, loading } from "$lib/stores/appointments.js";
+  import { fetchAppointments } from "$lib/services/appointmentService.js";
 
-  onMount(async () => {
-    $loading = true;
-    $requests = await fetchRequests();
-    $loading = false;
+  let activeTab = "list"; // 'list' o 'create'
+
+  // onMount(async () => {
+  //   await loadAppointments();
+  // });
+  onMount(() => {
+    $appointments = [
+      {
+        id: 1,
+        patient: "Juan Pérez",
+        doctor: "Dr. García",
+        dateTime: "2025-11-05T10:00",
+        reason: "Dolor de cabeza",
+        state: 1,
+      },
+      {
+        id: 2,
+        patient: "Ana López",
+        doctor: "Dra. Sofía",
+        dateTime: "2025-11-06T14:30",
+        reason: "Control",
+        state: 1,
+      },
+      {
+        id: 3,
+        patient: "Carlos Ruiz",
+        doctor: "Dr. Martínez",
+        dateTime: "2025-11-07T09:00",
+        reason: "Dolor espalda",
+        state: 0,
+      },
+    ];
   });
-
-  async function handleProcess(request) {
+  async function loadAppointments() {
+    $loading = true;
     try {
-      await processRequest(request);
-      alert("Solicitud procesada correctamente ✅");
-      $requests = await fetchRequests(); // Actualiza la lista
+      $appointments = await fetchAppointments();
     } catch (err) {
-      alert("Error al procesar la solicitud");
+      alert("Error al cargar citas");
+    } finally {
+      $loading = false;
     }
+  }
+
+  function openCreateForm() {
+    activeTab = "create";
   }
 </script>
 
-<div class="row g-4">
-  <div class="col-lg-6">
-    <AppointmentForm />
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">Gestión de Citas - Secretaria</h2>
+    <button class="btn btn-secondary" on:click={() => goto("/admin")}>
+      <i class="bi bi-arrow-left me-2"></i>Volver
+    </button>
   </div>
-  <div class="col-lg-6">
-    <AppointmentRequestList requests={$requests} onProcess={handleProcess} />
+
+  <!-- Pestañas -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button
+        class="nav-link {activeTab === 'list' ? 'active' : ''}"
+        on:click={() => (activeTab = "list")}
+      >
+        Lista de Citas
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link {activeTab === 'create' ? 'active' : ''}"
+        on:click={openCreateForm}
+      >
+        Agendar Nueva Cita
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- Lista de Citas -->
+    <div class="tab-pane fade {activeTab === 'list' ? 'show active' : ''}">
+      <AppointmentsTable
+        appointments={$appointments}
+        onRefresh={loadAppointments}
+        onEdit={(appt) => {
+          // Podrías pasar el appt al form
+          alert(`Editar cita con ${appt.patient}`);
+        }}
+      />
+    </div>
+
+    <!-- Formulario -->
+    <div class="tab-pane fade {activeTab === 'create' ? 'show active' : ''}">
+      <div class="col-lg-8 mx-auto">
+        <AppointmentForm
+          onSuccess={() => {
+            activeTab = "list";
+            loadAppointments();
+          }}
+        />
+      </div>
+    </div>
   </div>
 </div>
